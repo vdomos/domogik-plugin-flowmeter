@@ -1,0 +1,91 @@
+{% extends theme("base/base.html") %}
+{% import theme("base/wtf.html") as wtf %}
+
+{% block content %}
+{% include theme("client_menu.html") %}
+
+<script>
+function create_device() {
+    var selected_device = document.getElementById("pluginslist").value;
+    var name = selected_device.split('/') ;
+    var sensorid = selected_device.match(/\(([0-9]+)\)/);   // "Compteur vent / Counter  (210)" => 210
+    devicecreateurl="/client/{{ clientid }}/dmg_devices/new/type/flowmeter?Name=Flow " + name[0] + "&counter=" + sensorid[1];
+    //alert(devicecreateurl);
+    window.open(devicecreateurl, '_blank') ;
+}
+
+function strip(str) {
+    return str.replace(/^\s+|\s+$/g, '');
+}
+</script>
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4>{% trans %}Flows list{% endtrans %}</h4></div>
+            <div class="panel-body">
+                <table class='table table-striped'>
+                    <thead>
+                        <tr>
+                            <th>{% trans %}Name{% endtrans %}</th>
+                            <th>{% trans %}Date{% endtrans %}</th>
+                            <!-- <th>{% trans %}Last value{% endtrans %}</th> -->
+                            <th>{% trans %}Last hour{% endtrans %}</th>
+                            <th>{% trans %}Last day{% endtrans %}</th>
+                            <th>{% trans %}Last month{% endtrans %}</th>
+                            <th>{% trans %}Histograms{% endtrans %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flow in flowslist %}
+                        <tr>
+                            <td>{{ flow.name }}</td>
+                            <td>{{ flow.date }}</td>
+                            <!-- <td>{{ flow.value }}</td> -->
+                            <td>{{ flow.hourflow }}</td>
+                            <td>{{ flow.dayflow }}</td>
+                            <td>{{ flow.monthflow }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.id }}/hg_byhours">Hours</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.id }}/hg_bydays">Days</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.id }}/hg_bymonths">Months</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4>{% trans %}Create new flowmeter device{% endtrans %}</h4></div>
+            <div class="panel-body">
+            <form class="form-inline">
+                    <select class="form-control input-sm" id="pluginslist">
+                            <option>Choose counter sensor</option>
+                        {% for sensor in sensorslist %}
+                            <option>{{ sensor.device }} / {{ sensor.name }}  ({{ sensor.id }})</option>
+                        {% endfor %}
+                    </select>
+                    <input type="button" class="btn btn-success btn-sm" name="createsubmit_id" id="createbtn_id" value="Create device" onclick="create_device()"/>
+                </form>
+            </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4>{% trans %}Plugin log{% endtrans %}</h4></div>
+            <div class="panel-body">            
+                <div class="panel panel-default">
+                    <div class="panel-heading">ERROR or WARNING messages in {{ logfile }}</div>
+                    <div class="panel-body"><pre>{{ errorlog }}</pre></div>
+                </div>
+                <a href="./{{ clientid }}/log" class="btn btn-info" role="button">{% trans %}Display log file{% endtrans %}</a>
+            </div>
+
+    </div>
+</div>
+
+{% endblock %}

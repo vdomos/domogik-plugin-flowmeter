@@ -1,0 +1,117 @@
+{
+    "json_version": 2,
+    
+    "identity": {
+        "author": "domos", 
+        "author_email": "domos.vesta at gmail dt com", 
+        "tags": ["electricity", "energy", "water", "rainfall"], 
+        "dependencies": [],
+        "description": "Domogik Plugin for flow counter", 
+        "domogik_min_version": "0.5.0", 
+        "name": "flowmeter", 
+        "type": "plugin", 
+        "version": "0.1"
+    }, 
+    
+    "configuration": [],
+    
+    "device_types": {
+        "flowmeter": {
+            "description": "Flowmeter",
+            "id": "flowmeter",
+            "name": "Flowmeter",
+            "commands": [],
+            "sensors": ["flow", "hourflow", "dayflow", "monthflow"],
+            "parameters": [
+                {
+                    "key": "counter",
+                    "xpl": false,
+                    "description": "Counter Domogik sensor ID, you can use advanced page to search it",
+                    "type": "integer"
+                },
+                {
+                    "key": "formula",
+                    "xpl": false,
+                    "description": "Formula applied to the difference, Example: VALUE * 0.2794",
+                    "type": "string"
+                },
+                {
+                    "key": "unit",
+                    "xpl": false,
+                    "description": "Unit of the formula'result",
+                    "type": "string"
+                },      
+                {
+                    "key": "periodic", 
+                    "description": "set to false if counter does not have a periodic update", 
+                    "xpl": false,
+                    "default": true,
+                    "type": "boolean"
+                }
+            ]
+        }
+    },
+    
+    "sensors": {
+        "flow": {
+            "name": "Flow",
+            "data_type": "DT_Number",
+            "conversion": "",
+            "incremental": false,
+            "timeout": 960,
+            "history": {
+                "store": true,
+                "duplicate": true,
+                "max": 0,
+                "expire": 0,
+                "round_value": 0
+            }
+        },
+        "hourflow": {
+            "name": "Hour flow",
+            "data_type": "DT_Number",
+            "conversion": "",
+            "incremental": false,
+            "timeout": 960,
+            "history": {
+                "store": true,
+                "duplicate": true,
+                "max": 0,
+                "expire": 0,
+                "round_value": 0
+            }
+        },
+        "dayflow": {
+            "name": "Day flow",
+            "data_type": "DT_Number",
+            "conversion": "",
+            "incremental": false,
+            "timeout": 960,
+            "history": {
+                "store": true,
+                "duplicate": true,
+                "max": 0,
+                "expire": 0,
+                "round_value": 0
+            }
+        },
+        "monthflow": {
+            "name": "Month flow",
+            "data_type": "DT_Number",
+            "conversion": "",
+            "incremental": false,
+            "timeout": 960,
+            "history": {
+                "store": true,
+                "duplicate": true,
+                "max": 0,
+                "expire": 0,
+                "round_value": 0
+            }
+        }
+    },
+    
+    "commands": {},
+    "xpl_stats": {},
+    "xpl_commands": {}
+}
