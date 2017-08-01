@@ -21,7 +21,7 @@ function strip(str) {
 
 <div class="container">
     <div class="panel panel-default">
-        <div class="panel-heading"><h4>{% trans %}Flows list{% endtrans %}</h4></div>
+        <div class="panel-heading"><h4>{% trans %}Flowmeter devices list{% endtrans %}</h4></div>
             <div class="panel-body">
                 <table class='table table-striped'>
                     <thead>
@@ -32,7 +32,7 @@ function strip(str) {
                             <th>{% trans %}Last hour{% endtrans %}</th>
                             <th>{% trans %}Last day{% endtrans %}</th>
                             <th>{% trans %}Last month{% endtrans %}</th>
-                            <th>{% trans %}Histograms{% endtrans %}</th>
+                            <th>{% trans %}Histograms by{% endtrans %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,15 +40,15 @@ function strip(str) {
                         <tr>
                             <td>{{ flow.name }}</td>
                             <td>{{ flow.date }}</td>
-                            <!-- <td>{{ flow.value }}</td> -->
                             <td>{{ flow.hourflow }}</td>
                             <td>{{ flow.dayflow }}</td>
                             <td>{{ flow.monthflow }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.id }}/hg_byhours">Hours</a>
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.id }}/hg_bydays">Days</a>
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.id }}/hg_bymonths">Months</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/hour/graph">Hours</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/day/graph">Days</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/month/graph">Months</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/all/graph">All</a>
                                 </div>
                             </td>
                         </tr>

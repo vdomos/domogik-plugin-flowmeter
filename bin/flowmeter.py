@@ -64,12 +64,12 @@ class FlowMeterManager(Plugin):
         self.sensors = self.get_sensors(self.devices)
 
         # Init FlowMeter Manager
-        self.flowmetermanager = FlowMeter(self.log, self.send_data, self.get_stop())
+        self.flowmetermanager = FlowMeter(self.log, self.send_data, self.getMQFilterSensorHistory, self.get_stop())
         
         # Set nodes list
         self.setFlowMeterSensorsList(self.devices)
 
-        schedule.every(1).minutes.do(self.flowmetermanager.doScheduleSum)        
+        schedule.every(5).minutes.do(self.flowmetermanager.doScheduleSum)        
         
         # A thread is launched to run schedule loop.
         self.log.info(u"==> Launch 'schedule loop' thread") 
@@ -99,6 +99,7 @@ class FlowMeterManager(Plugin):
             # self.log.info(u"==> a_device:   %s" % format(a_device))
             device_id = a_device["id"]                                          # 
             device_name = a_device["name"]                                      # 
+            flowsensor_id = a_device["sensors"]["flow"]["id"]
             #sensorid = a_device["sensors"]["diffcounter"]["id"]
             counterid = self.get_parameter(a_device, "counter")                 # Device Parameter
             formula = self.get_parameter(a_device, "formula")                   # Device Parameter
@@ -111,6 +112,7 @@ class FlowMeterManager(Plugin):
             else:
                 self.flowmetermanager.flowMeterSensorsList.update({counterid : {"name": device_name, 
                                                                                 "device_id": device_id, 
+                                                                                "flowsensor_id": flowsensor_id,
                                                                                 "formula": formula,
                                                                                 "unit": unit,            # Utile pour generer graphes dans 'Advanced' ?
                                                                                 "periodic": periodic,
@@ -150,6 +152,36 @@ class FlowMeterManager(Plugin):
             self.log.error(u"### 0MQ REQ/REP: '%s'", format(traceback.format_exc()))
             return "Failed"
         
+
+    # -------------------------------------------------------------------------------------------------
+    def getMQFilterSensorHistory(self, id, ts, interval, selector):
+        # get the filtered and calculated history starting from/to a certain timestamp
+        #cli = MQSyncReq(zmq.Context())
+        mq_client = MQSyncReq(self.zmq)
+        msg = MQMessage()
+        msg.set_action('sensor_history.get')
+        msg.add_data('mode', 'filter')      # Like REST functions sensorHistory_from_filter and sensorHistory_from_to_filter
+        msg.add_data('sensor_id', id) 
+        msg.add_data('from', ts)        # 
+        #msg.add_data('to', 1500847199)     # now
+        msg.add_data('interval', interval)    # 'minute|hour|day|week|month|year'
+        msg.add_data('selector', selector)     # 'min|max|avg|sum'
+        try:
+            #sensor_history = cli.request('admin', msg.get(), timeout=15).get()
+            sensor_history = mq_client.request('admin', msg.get(), timeout=15).get()
+        except AttributeError:
+            self.log.error("### AttributeError for get FilterSensorHistory")
+            return []
+        if 'sensor_history.result' in sensor_history:
+            historyvalues = json.loads(sensor_history[1])
+            if historyvalues["status"]:
+                return historyvalues["values"]["values"]
+            else:
+                self.log.error("### Status : False, Reason : '%s'" % historyvalues["reason"])
+                return []
+        else:
+            self.log.error("### No Result for FilterSensorHistory: '%s'" % format(sensor_history))
+            return []
  
     # -------------------------------------------------------------------------------------------------
     def on_message(self, msgid, content):               
@@ -164,13 +196,14 @@ class FlowMeterManager(Plugin):
 
 
     # -------------------------------------------------------------------------------------------------
-    def send_data(self, device_id, countersensorid, flowvalue):
+    def send_data(self, countersensorid, sensortype, value):
         """ Send the flowmeter sensors values over MQ
         """
         data = {}
+        device_id = self.flowmetermanager.flowMeterSensorsList[countersensorid]["device_id"]
         devicename = self.flowmetermanager.flowMeterSensorsList[countersensorid]["name"]
-        data[self.sensors[device_id]["flow"]] = flowvalue                 
-        self.log.info("==> Publish value '%s' for device '%s'" % (flowvalue, devicename))
+        data[self.sensors[device_id][sensortype]] = value                 
+        self.log.info("==> Publish '%s' value '%s' for device '%s'" % (sensortype, value, devicename))
 
         try:
             self._pub.send_event('client.sensor', data)

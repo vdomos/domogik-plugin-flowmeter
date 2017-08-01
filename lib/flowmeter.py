@@ -28,6 +28,7 @@ along with Domogik. If not, see U{http://www.gnu.org/licenses}.
 
 import traceback
 import time
+from datetime import datetime
 
 class FlowMeterException(Exception):
     """
@@ -46,7 +47,7 @@ class FlowMeter():
     """
     """
     # -------------------------------------------------------------------------------------------------
-    def __init__(self, log, send, stop):
+    def __init__(self, log, send, getSensorHistory, stop):
         """ Init Weather object
             @param log : log instance
             @param send : callback to send values to domogik
@@ -54,6 +55,7 @@ class FlowMeter():
         """
         self.log = log
         self.send = send
+        self.getSensorHistory = getSensorHistory
         self.stop = stop
         self.flowMeterSensorsList = {}
         
@@ -92,12 +94,26 @@ class FlowMeter():
         self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] = content["timestamp"]
         
         #self.log.info(u"==> counterdiff = %d, flowValue = %f for flowmeter '%s'" % (counterdiff, flowValue, self.flowMeterSensorsList[counterSensorId]["name"]))
-        if flowValue != "error": self.send(self.flowMeterSensorsList[counterSensorId]["device_id"], counterSensorId, flowValue)
+        if flowValue != "error": self.send(counterSensorId, "flow", flowValue)
         
     
     # -------------------------------------------------------------------------------------------------
     def doScheduleSum(self):
-        self.log.info("==> Do flow sum of ...")
+        self.log.info("==> Get last flowmeter sums values")
+        for counterSensorId in self.flowMeterSensorsList:
+            for interval in ["hour", "day", "month"]:
+                if interval == "hour":
+                    tsfrom = int((datetime.now()).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# Current hour
+                elif interval == "day":
+                    tsfrom = int((datetime.now()).replace(hour=0, minute=0, second=0, microsecond=0).strftime("%s"))	# Current day
+                elif interval == "month":
+                    tsfrom = int((datetime.now()).replace(day=1, hour=0, minute=0, second=0, microsecond=0).strftime("%s"))	# Current month
+                values = self.getSensorHistory(self.flowMeterSensorsList[counterSensorId]["flowsensor_id"], tsfrom, interval, "sum")
+                self.log.info("==> getSensorHistoryvalues = %s" % format(values))
+                if values:
+                    sumValue = values[0][-1]    # For last hour, values = [[2017, 7, 30, 29, 15, 0.75]]
+                    self.log.info("==> Last flowmeter '%s' sum value for '%s' = %0.3f" % (interval, self.flowMeterSensorsList[counterSensorId]["name"], sumValue))
+                    self.send(counterSensorId, interval + "flow", sumValue)    # flowmeter sensors: "hourflow", "dayflow", "monthflow"
         
         
 

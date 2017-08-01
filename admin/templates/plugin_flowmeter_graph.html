@@ -1,0 +1,229 @@
+{% extends theme("base/base.html") %}
+{% import theme("base/wtf.html") as wtf %}
+
+{% block content %}
+{% include theme("client_menu.html") %}
+
+<script src="/plugin_flowmeter/static/highstock/code/highstock.js"></script>
+<script src="/plugin_flowmeter/static/highstock/code/modules/exporting.js"></script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        Highcharts.setOptions({
+            global: { 
+                useUTC: false 
+            },
+			lang: {
+				months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin','Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+				weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+				shortMonths: ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil','Août', 'Sept', 'Oct', 'Nov', 'Déc'],
+				decimalPoint: '.',
+				resetZoom: 'Reset zoom',
+				resetZoomTitle: 'Reset zoom à 1:1',
+				downloadPNG: "Télécharger au format PNG image",
+				downloadJPEG: "Télécharger au format JPEG image",
+				downloadPDF: "Télécharger au format PDF document",
+				downloadSVG: "Télécharger au format SVG vector image",
+				exportButtonTitle: "Exporter image ou document",
+				printButtonTitle: "Imprimer le graphique",
+				loading: "Chargement"
+			}        
+        });
+        
+        switch("{{ interval }}") {
+            case "hour":
+                sethourchart() ;
+                $("#containerhour").show();
+            break;
+            case "day":
+                $("#containerday").show();
+                setdaychart() ;
+            break;
+            case "month":
+                $("#containermonth").show();
+                setmonthchart() ;
+            break;
+            case "all":
+                $("#containerhour").show();
+                $("#containerday").show();
+                $("#containermonth").show();
+                sethourchart() ;
+                setdaychart() ;
+                setmonthchart() ;
+            break;
+            default:
+                alert("Time interval must be in hour|day|month")
+        }
+
+    });
+ 
+ 
+function sethourchart() {
+        $('#containerhour').highcharts('StockChart', {
+            title: {
+                text: '{{ devicename }}'
+            },
+            subtitle: {
+                text: 'Source: {{ clientid }}'
+            },           
+            rangeSelector: {
+                enabled: false
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '<b>%a</b><br>%k:%M'
+                },
+                gridLineWidth: 1,
+            },
+            yAxis: {
+                title: {
+                    text: '{{ unit }}'
+                },
+                opposite: false,
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                series: {
+                    pointWidth: 25  //width of the column bars irrespective of the chart size
+                },
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none',
+                        color: '#848484',
+                        maxPadding: 0.1,
+                        format: '{point.y:,.1f}'
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: [{
+                name: "Débit heures",
+                type: 'column',
+                color: '{{ color }}',
+                lineWidth: 1,
+                data: {{ datahour }},
+            }]
+        }); 
+};
+
+function setdaychart() {
+        $('#containerday').highcharts('StockChart', {
+            title: {
+                text: '{{ devicename }}'
+            },
+            subtitle: {
+                text: 'Source: {{ clientid }}'
+            },           
+            rangeSelector: {
+                enabled: false
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '<b>%e\n%b</b>'
+                },
+                gridLineWidth: 1,
+            },
+            yAxis: {
+                title: {
+                    text: '{{ unit }}'
+                },
+                opposite: false,
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                series: {
+                    pointWidth: 25  //width of the column bars irrespective of the chart size
+                },
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none',
+                        color: '#848484',
+                        maxPadding: 0.1,
+                        format: '{point.y:,.1f}'
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: [{
+                name: "Débit jours",
+                type: 'column',
+                color: '{{ color }}',
+                lineWidth: 1,
+                data: {{ dataday }},
+            }]
+        }); 
+};
+
+function setmonthchart() {
+        $('#containermonth').highcharts('StockChart', {
+            title: {
+                text: '{{ devicename }}'
+            },
+            subtitle: {
+                text: 'Source: {{ clientid }}'
+            },           
+            rangeSelector: {
+                enabled: false
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '<b>%b\n%Y</b>'
+                },
+                gridLineWidth: 1,
+            },
+            yAxis: {
+                title: {
+                    text: '{{ unit }}'
+                },
+                opposite: false,
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                series: {
+                    pointWidth: 30  //width of the column bars irrespective of the chart size
+                },
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none',
+                        color: '#848484',
+                        maxPadding: 0.1,
+                        format: '{point.y:,.1f}'
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: [{
+                name: "Débit mois",
+                type: 'column',
+                color: '{{ color }}',
+                lineWidth: 1,
+                data: {{ datamonth }},
+            }]
+        }); 
+};
+</script>
+
+<div id="containerhour"  style="display: none; min-width: 310px; max-width: 1000px;height: 500px; margin: 0 auto"></div>
+<br>                
+<div id="containerday"   style="display: none; min-width: 310px; max-width: 1000px;height: 500px; margin: 0 auto"></div>
+<br>                
+<div id="containermonth" style="display: none; min-width: 310px; max-width: 1000px;height: 500px; margin: 0 auto"></div>
+               
+{% endblock %}

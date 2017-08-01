@@ -36,12 +36,6 @@
                     "type": "string"
                 },
                 {
-                    "key": "unit",
-                    "xpl": false,
-                    "description": "Unit of the formula'result",
-                    "type": "string"
-                },      
-                {
                     "key": "periodic", 
                     "description": "set to false if counter does not have a periodic update", 
                     "xpl": false,
