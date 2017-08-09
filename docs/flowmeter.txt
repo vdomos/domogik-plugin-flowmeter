@@ -67,7 +67,7 @@ Each device has 4 sensors:
 * **yearflow** type:  Update withe the sum of **flow** sensor every 5mn for a last year period
 
 
-All sensors have a **DT_Number** datatype by default, You can change this type in the sensor configuration to see this information in the graphs.
+All sensors have a **DT_Number** datatype by default, You can change this type in the *Sensor Configure page* to see this information in the graphs.
 
 .. image:: AdminSensor_Datatype.png
 
@@ -103,6 +103,8 @@ The **View all** button will display all hour,day,month and year histogram. it c
 
 Set up your widgets on the user interface
 =========================================
+
+Use basic widgets for daily flow:
 
 .. image:: domoweb_flowmeter_1.png
 
