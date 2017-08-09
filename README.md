@@ -3,8 +3,13 @@
 ## Purpose
 
 This is a package for Domogik : http://www.domogik.org
-
 Domogik is an open source home automation solution.
+
+This plugin allows to manage the consumption or flow rates by calculating the hourly, daily, monthly and annual flow 
+for some counters like water or electic meter, rain gauge.
+
+It will be possible to visualize the results in histogram format in "Advanced" page of Admin.
+
 
 ## Documentation 
 

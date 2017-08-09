@@ -35,6 +35,12 @@ def get_flows(devices):
             last_received = datetime.fromtimestamp(a_device["sensors"]["flow"]["last_received"]).strftime("%e %b %k:%M")
         else:
             last_received = ""
+            
+        datatype = a_device["sensors"]["flow"]["data_type"]
+        if datatypeslist[datatype]["unit"]:
+            dtunit = datatypeslist[datatype]["unit"]
+        else:
+            dtunit = ""
 
         flowslist.append(
             {"name": a_device["name"], 
@@ -43,9 +49,11 @@ def get_flows(devices):
              "dtype": a_device["sensors"]["flow"]["data_type"],
              "date": last_received,
              "flow": a_device["sensors"]["flow"]["last_value"],             
-             "hourflow": a_device["sensors"]["hourflow"]["last_value"],
-             "dayflow": a_device["sensors"]["dayflow"]["last_value"],
-             "monthflow": a_device["sensors"]["monthflow"]["last_value"]
+             "hourflow": "%0.1f" % float(a_device["sensors"]["hourflow"]["last_value"]),
+             "dayflow": "%0.1f" % float(a_device["sensors"]["dayflow"]["last_value"]),
+             "monthflow": "%0.1f" % float(a_device["sensors"]["monthflow"]["last_value"]),
+             "yearflow": "%0.1f" % float(a_device["sensors"]["yearflow"]["last_value"]),
+             "unit": dtunit
              })
     return flowslist
 
@@ -138,8 +146,6 @@ if res is not None:
 else:
     datatypeslist = {}
 
-dttype_color = {'DT_Number': '#BDBDBD', 'DT_Counter': '#BDBDBD', 'DT_ActiveEnergy': '#FE9A2E', 'DT_kActiveEnergy': '#FE9A2E', 'DT_mMeter': '#2E64FE', 'DT_kMeter': '#BDBDBD', 'DT_VolumeLiter': '#1e90ff', 'DT_VolumeM3': '##1e90ff'}
-
 
 # -------------------------------------------------------------------------------------------------
 # Route /
@@ -173,10 +179,12 @@ def index(client_id):
 def graph(client_id, sensor_id, device_name, data_type, interval):
     detail = get_client_detail(client_id)
 
+    dttype_color = {'DT_Number': '#BDBDBD', 'DT_Counter': '#BDBDBD', 'DT_ActiveEnergy': '#FE9A2E', 'DT_kActiveEnergy': '#FE9A2E', 'DT_mMeter': '#2E64FE', 'DT_kMeter': '#BDBDBD', 'DT_VolumeLiter': '#81BEF7', 'DT_VolumeM3': '#81BEF7'}
     data = {}
     data["hour"] = []
     data["day"] = []
     data["month"] = []
+    data["year"] = []
     
     if interval == "hour" or interval == "all":
         tsfrom = int((datetime.now() + timedelta(hours=-30)).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# now - 30h
@@ -186,7 +194,9 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
                 valuelist = []
                 valuelist.append(int(datetime.strptime(str(timevalue[0]) + "." + str(timevalue[1]) + "." + str(timevalue[3]) + " " + str(timevalue[4]) + ":00:00", "%Y.%m.%d %H:%M:%S").strftime("%s")) * 1000)
                 valuelist.append(timevalue[5])
-                data["hour"].append(valuelist)            
+                data["hour"].append(valuelist)  
+        else:
+            data["hour"] = [[0, 0]] 
 
     if interval == "day" or interval == "all":
         tsfrom = int((datetime.now() + timedelta(days=-32)).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# now - 32j
@@ -197,6 +207,8 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
                 valuelist.append(int(datetime.strptime(str(timevalue[0]) + "." + str(timevalue[1]) + "." + str(timevalue[3]) + " " + "00:00:00", "%Y.%m.%d %H:%M:%S").strftime("%s")) * 1000)
                 valuelist.append(timevalue[4])
                 data["day"].append(valuelist)                   
+        else:
+            data["day"] = [[0, 0]] 
 
     if interval == "month" or interval == "all":
         tsfrom = int((datetime.now() + timedelta(days=-428)).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# now - 428j
@@ -207,8 +219,22 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
                 valuelist.append(int(datetime.strptime(str(timevalue[0]) + "." + str(timevalue[1]) + ".01 00:00:00", "%Y.%m.%d %H:%M:%S").strftime("%s")) * 1000)
                 valuelist.append(timevalue[2])
                 data["month"].append(valuelist)            
+        else:
+            data["month"] = [[0, 0]] 
 
-    if "unit" in datatypeslist[data_type]:
+    if interval == "year" or interval == "all":
+        tsfrom = 1451602800	                        # 2016-01-01
+        values = getMQFilterSensorHistory(sensor_id, tsfrom, "year", "sum")
+        if values:
+            for timevalue in values:
+                valuelist = []
+                valuelist.append(int(datetime.strptime(str(timevalue[0]) + ".01.01 00:00:00", "%Y.%m.%d %H:%M:%S").strftime("%s")) * 1000)
+                valuelist.append(timevalue[1])
+                data["year"].append(valuelist)            
+        else:
+            data["year"] = [[0, 0]] 
+
+    if datatypeslist[data_type]["unit"]:
         dtunit = datatypeslist[data_type]["unit"]
     else:
         dtunit = "-"
@@ -225,6 +251,7 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
             datahour = data["hour"],
             dataday = data["day"],
             datamonth = data["month"],
+            datayear = data["year"],
             interval = interval
             )
     except TemplateNotFound:

@@ -86,7 +86,7 @@ class FlowMeterManager(Plugin):
         self.add_mq_sub("device-stats")
 
         self.log.info(u"==> Add callback for new or changed devices.")
-        self.register_cb_update_devices(self.reload_devices)
+        self.register_cb_update_devices(self.reload_devices)           # "reload_devices" never call, don't work when using on_message() function !
         
         self.ready()
 
@@ -160,12 +160,12 @@ class FlowMeterManager(Plugin):
         mq_client = MQSyncReq(self.zmq)
         msg = MQMessage()
         msg.set_action('sensor_history.get')
-        msg.add_data('mode', 'filter')      # Like REST functions sensorHistory_from_filter and sensorHistory_from_to_filter
+        msg.add_data('mode', 'filter')          # Like REST functions sensorHistory_from_filter and sensorHistory_from_to_filter
         msg.add_data('sensor_id', id) 
-        msg.add_data('from', ts)        # 
-        #msg.add_data('to', 1500847199)     # now
-        msg.add_data('interval', interval)    # 'minute|hour|day|week|month|year'
-        msg.add_data('selector', selector)     # 'min|max|avg|sum'
+        msg.add_data('from', ts)                # 
+        #msg.add_data('to', 1500847199)         # Default now
+        msg.add_data('interval', interval)      # 'minute|hour|day|week|month|year'
+        msg.add_data('selector', selector)      # 'min|max|avg|sum'
         try:
             #sensor_history = cli.request('admin', msg.get(), timeout=15).get()
             sensor_history = mq_client.request('admin', msg.get(), timeout=15).get()
@@ -185,12 +185,12 @@ class FlowMeterManager(Plugin):
  
     # -------------------------------------------------------------------------------------------------
     def on_message(self, msgid, content):               
-        ''' Receive 'device-stats' messages
-            msgid = 'device-stats'
-            content = {u'timestamp': 1500937509, u'sensor_id': u'210', u'device_id': 32, u'stored_value': u'10240971'}
+        ''' Must recieve only 'device-stats' messages
+            but received 'device.update' too ! => ticket done
         '''
-        #self.log.debug(u"Receive MQ '%s' message: %s" % (msgid, format(content)))
+        #self.log.debug(u"==> Receive MQ '%s' content: %s" % (msgid, format(content)))
         if msgid == 'device-stats':
+            # ==> Receive MQ 'device-stats' content: {u'timestamp': 1500937509, u'sensor_id': u'210', u'device_id': 32, u'stored_value': u'10240971'}
             if int(content["sensor_id"]) not in self.flowmetermanager.flowMeterSensorsList: return
             self.flowmetermanager.updateFlowmeter(content)
 
@@ -211,26 +211,6 @@ class FlowMeterManager(Plugin):
             self.log.error(u"### Bad MQ message to update sensor : {0}".format(data))
             pass
 
-
-    '''
-    # -------------------------------------------------------------------------------------------------
-    def on_mdp_request(self, msg):
-        """ Called when a MQ req/rep message is received
-        """
-        ### No command for this plugin
-
-
-    # -------------------------------------------------------------------------------------------------
-    def send_rep_ack(self, status, reason, cmd_id, dev_name):
-        """ Send MQ REP (acq) to command
-        """
-        self.log.info(u"==> Reply MQ REP (acq) to REQ command id '%s' for device '%s'" % (cmd_id, dev_name))
-        reply_msg = MQMessage()
-        reply_msg.set_action('client.cmd.result')
-        reply_msg.add_data('status', status)
-        reply_msg.add_data('reason', reason)
-        self.reply(reply_msg.get())
-    '''
     
     # -------------------------------------------------------------------------------------------------
     def scheduleLoop(self):
@@ -243,13 +223,13 @@ class FlowMeterManager(Plugin):
 
     # -------------------------------------------------------------------------------------------------
     def reload_devices(self, devices):
-        """ Called when some devices are added/deleted/updated
+        """ Called when some devices are added/deleted/updated, 
+            Don't be called when using on_message() function !
         """
         self.log.info(u"==> Reload Device called")
-        self.setFlowMeterNodesList(devices)
+        self.flowmetermanager.flowMeterSensorsList(devices)
         self.devices = devices
         self.sensors = self.get_sensors(devices)
-
 
 
 if __name__ == "__main__":

@@ -32,7 +32,8 @@ function strip(str) {
                             <th>{% trans %}Last hour{% endtrans %}</th>
                             <th>{% trans %}Last day{% endtrans %}</th>
                             <th>{% trans %}Last month{% endtrans %}</th>
-                            <th>{% trans %}Histograms by{% endtrans %}</th>
+                            <th>{% trans %}Last year{% endtrans %}</th>
+                            <th>{% trans %}Histograms{% endtrans %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,15 +41,13 @@ function strip(str) {
                         <tr>
                             <td>{{ flow.name }}</td>
                             <td>{{ flow.date }}</td>
-                            <td>{{ flow.hourflow }}</td>
-                            <td>{{ flow.dayflow }}</td>
-                            <td>{{ flow.monthflow }}</td>
+                            <td>{{ flow.hourflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/hour/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td>{{ flow.dayflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/day/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td>{{ flow.monthflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/month/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td>{{ flow.yearflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/year/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
                             <td>
                                 <div class="btn-group">
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/hour/graph">Hours</a>
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/day/graph">Days</a>
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/month/graph">Months</a>
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/all/graph">All</a>
+                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/all/graph">View all</a>
                                 </div>
                             </td>
                         </tr>

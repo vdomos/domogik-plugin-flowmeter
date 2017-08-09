@@ -45,16 +45,22 @@
                 $("#containermonth").show();
                 setmonthchart() ;
             break;
+            case "year":
+                $("#containeryear").show();
+                setyearchart() ;
+            break;
             case "all":
                 $("#containerhour").show();
                 $("#containerday").show();
                 $("#containermonth").show();
+                $("#containeryear").show();
                 sethourchart() ;
                 setdaychart() ;
                 setmonthchart() ;
+                setyearchart() ;
             break;
             default:
-                alert("Time interval must be in hour|day|month")
+                alert("Time interval must be in hour|day|month|year")
         }
 
         setTimeout(function () { 
@@ -107,10 +113,11 @@ function sethourchart() {
                 }
             },
             series: [{
-                name: "Débit heures",
+                name: "{% trans %}Hourly flow{% endtrans %}",
                 type: 'column',
                 color: '{{ color }}',
-                lineWidth: 1,
+                borderWidth: 1,
+                borderColor: '#6E6E6E',
                 data: {{ datahour }},
             }]
         }); 
@@ -160,10 +167,11 @@ function setdaychart() {
                 }
             },
             series: [{
-                name: "Débit jours",
+                name: "{% trans %}Daily flow{% endtrans %}",
                 type: 'column',
                 color: '{{ color }}',
-                lineWidth: 1,
+                borderWidth: 1,
+                borderColor: '#6E6E6E',
                 data: {{ dataday }},
             }]
         }); 
@@ -213,11 +221,66 @@ function setmonthchart() {
                 }
             },
             series: [{
-                name: "Débit mois",
+                name: "{% trans %}Monthly flow{% endtrans %}",
                 type: 'column',
                 color: '{{ color }}',
-                lineWidth: 1,
+                borderWidth: 1,
+                borderColor: '#6E6E6E',
                 data: {{ datamonth }},
+            }]
+        }); 
+};
+
+function setyearchart() {
+        $('#containeryear').highcharts('StockChart', {
+            title: {
+                text: '{{ devicename }}'
+            },
+            subtitle: {
+                text: 'Source: {{ clientid }}'
+            },           
+            rangeSelector: {
+                enabled: false
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '<b>%Y</b>'
+                },
+                gridLineWidth: 1,
+            },
+            yAxis: {
+                title: {
+                    text: '{{ unit }}'
+                },
+                opposite: false,
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                series: {
+                    pointWidth: 30  //width of the column bars irrespective of the chart size
+                },
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none',
+                        color: '#848484',
+                        maxPadding: 0.1,
+                        format: '{point.y:,.1f}'
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: [{
+                name: "{% trans %}Annual flow{% endtrans %}",
+                type: 'column',
+                color: '{{ color }}',
+                borderWidth: 1,
+                borderColor: '#6E6E6E',
+                data: {{ datayear }},
             }]
         }); 
 };
@@ -228,5 +291,7 @@ function setmonthchart() {
 <div id="containerday"   style="display: none; min-width: 310px; max-width: 1000px;height: 500px; margin: 0 auto"></div>
 <br>                
 <div id="containermonth" style="display: none; min-width: 310px; max-width: 1000px;height: 500px; margin: 0 auto"></div>
+<br>                
+<div id="containeryear"  style="display: none; min-width: 310px; max-width: 1000px;height: 500px; margin: 0 auto"></div>
                
 {% endblock %}

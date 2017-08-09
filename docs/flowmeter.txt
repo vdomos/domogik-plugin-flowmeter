@@ -6,29 +6,71 @@ Plugin flowmeter
 
 Purpose
 =======
+This plugin allows to manage the consumption or flow rates by calculating the hourly, daily, monthly and annual flow for some counters like water or electic meter, rain gauge.
+Some counters can be reset to 0 during their operation, this plugin will allow to take account of this case.
+
+To work the plugin will listen to the device counter already existing in other plugin and update flow rates at each counter increment.
 
 Dependencies
 ============
+It will be necessary to install the schedule module: :: 
+
+    # pip install schedule
 
 Plugin configuration
 ====================
+No specific configuration
 
 Create the devices
 ==================
 
+There is only one type of device: flowmeter.
+
+It is possible to create the devices in the "Advanced" tab.
+
+A list of choices will offer you to search the counter sensor in the devices already present in Domogik.
+
+This list will only show the sensor type:
+
+``["DT_Number", "DT_Counter", "DT_ActiveEnergy", "DT_kActiveEnergy", "DT_kMeter", "DT_VolumeLiter", "DT_VolumeM3"]``
+
+
+.. image:: AdminAdvanced_CreateDevice.png
+
+
 Device parameters configuration
 -------------------------------
 
-X parameters are needed for a domogik device creation ...
+3 parameters are needed for a domogik device creation ...
 
 
 ===================== =========================== ======================================================================
 Key                   Type                        Description
 ===================== =========================== ======================================================================
-key1                  datatype                    ...
+counter               Number                      Counter Domogik sensor ID
 --------------------- --------------------------- ----------------------------------------------------------------------
-key2                  datatype                    ...
+formula               String                      Formula applied to the difference, Example: VALUE * 0.2794
+--------------------- --------------------------- ----------------------------------------------------------------------
+periodic              Boolean                     Set to false if counter does not have a periodic update
 ===================== =========================== ======================================================================
+
+
+Sensors details
+---------------
+
+Each device has 4 sensors:
+
+* **flow** type:      Update every counter change
+* **hourflow** type:  Update withe the sum of **flow** sensor every 5mn for a last hour period
+* **dayflow** type:   Update withe the sum of **flow** sensor every 5mn for a last day period
+* **monthflow** type: Update withe the sum of **flow** sensor every 5mn for a last month period
+* **yearflow** type:  Update withe the sum of **flow** sensor every 5mn for a last year period
+
+
+All sensors have a **DT_Number** datatype by default, You can change this type in the sensor configuration to see this information in the graphs.
+
+.. image:: AdminSensor_Datatype.png
+
 
 
 Start the plugin
@@ -36,7 +78,42 @@ Start the plugin
 
 You can now start the plugin (start button) and use the created devices.
 
+After a few run time of the plugin, you will see the result in the **Advanced** tab.You can see a summary for each flow sensor by period:
+
+.. image:: AdminAdvanced_DevicesList.png
+
+The **View all** button will display all hour,day,month and year histogram. it can take some time that while there is a **glyphicon** link for each pariod.
+
+
+* Hour flow histogram
+
+.. image:: AdminAdvanced_GraphHour.png
+
+
+* Day flow histogram
+
+.. image:: AdminAdvanced_GraphDay.png
+
+
+* Month flow histogram
+
+.. image:: AdminAdvanced_GraphMonth.png
+
+
+
 Set up your widgets on the user interface
 =========================================
 
-You can now place the widgets of your devices features on the user interface.
+.. image:: domoweb_flowmeter_1.png
+
+.. image:: domoweb_flowmeter_2.png
+
+
+
+
+To do
+=====
+
+Some translate ...
+
+

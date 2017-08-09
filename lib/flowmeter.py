@@ -89,7 +89,7 @@ class FlowMeter():
 
         # If current value and lastcountertimestamp < 30mn don't save (necessary to have one value in hour to calculate sum by interval )
         if flowValue == 0 and (time.time() - self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] < 1800):
-            self.log.info(u"==> Current flowmeter value of '%s' = 0 and last timestamp < 30mn, Don't save !" % self.flowMeterSensorsList[counterSensorId]["name"])
+            #self.log.debug(u"==> Current flowmeter value of '%s' = 0 and last timestamp < 30mn, Don't save !" % self.flowMeterSensorsList[counterSensorId]["name"])
             return        
         self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] = content["timestamp"]
         
@@ -101,13 +101,15 @@ class FlowMeter():
     def doScheduleSum(self):
         self.log.info("==> Get last flowmeter sums values")
         for counterSensorId in self.flowMeterSensorsList:
-            for interval in ["hour", "day", "month"]:
+            for interval in ["hour", "day", "month", "year"]:
                 if interval == "hour":
                     tsfrom = int((datetime.now()).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# Current hour
                 elif interval == "day":
                     tsfrom = int((datetime.now()).replace(hour=0, minute=0, second=0, microsecond=0).strftime("%s"))	# Current day
                 elif interval == "month":
                     tsfrom = int((datetime.now()).replace(day=1, hour=0, minute=0, second=0, microsecond=0).strftime("%s"))	# Current month
+                elif interval == "year":
+                    tsfrom = int((datetime.now()).replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0).strftime("%s"))	# Current year
                 values = self.getSensorHistory(self.flowMeterSensorsList[counterSensorId]["flowsensor_id"], tsfrom, interval, "sum")
                 self.log.info("==> getSensorHistoryvalues = %s" % format(values))
                 if values:

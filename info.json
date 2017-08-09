@@ -7,10 +7,10 @@
         "tags": ["electricity", "energy", "water", "rainfall"], 
         "dependencies": [],
         "description": "Domogik Plugin for flow counter", 
-        "domogik_min_version": "0.5.0", 
+        "domogik_min_version": "0.6.0", 
         "name": "flowmeter", 
         "type": "plugin", 
-        "version": "0.1"
+        "version": "0.2"
     }, 
     
     "configuration": [],
@@ -21,7 +21,7 @@
             "id": "flowmeter",
             "name": "Flowmeter",
             "commands": [],
-            "sensors": ["flow", "hourflow", "dayflow", "monthflow"],
+            "sensors": ["flow", "hourflow", "dayflow", "monthflow", "yearflow"],
             "parameters": [
                 {
                     "key": "counter",
@@ -91,6 +91,20 @@
         },
         "monthflow": {
             "name": "Month flow",
+            "data_type": "DT_Number",
+            "conversion": "",
+            "incremental": false,
+            "timeout": 960,
+            "history": {
+                "store": true,
+                "duplicate": true,
+                "max": 0,
+                "expire": 0,
+                "round_value": 0
+            }
+        },
+        "yearflow": {
+            "name": "Year flow",
             "data_type": "DT_Number",
             "conversion": "",
             "incremental": false,
