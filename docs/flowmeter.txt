@@ -110,12 +110,3 @@ Use Domoweb basic widgets for daily flow:
 
 .. image:: domoweb_flowmeter_2.png
 
-
-
-
-To do
-=====
-
-Some translate ...
-
-
