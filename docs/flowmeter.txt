@@ -104,7 +104,7 @@ The **View all** button will display all hour,day,month and year histogram. it c
 Set up your widgets on the user interface
 =========================================
 
-Use basic widgets for daily flow:
+Use Domoweb basic widgets for daily flow:
 
 .. image:: domoweb_flowmeter_1.png
 
