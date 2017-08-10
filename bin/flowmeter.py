@@ -103,7 +103,6 @@ class FlowMeterManager(Plugin):
             #sensorid = a_device["sensors"]["diffcounter"]["id"]
             counterid = self.get_parameter(a_device, "counter")                 # Device Parameter
             formula = self.get_parameter(a_device, "formula")                   # Device Parameter
-            unit = self.get_parameter(a_device, "unit")                         # Device Parameter
             periodic = True if self.get_parameter(a_device, "periodic") == "y" else False       # Device Parameter
 
             last_countervalue = self.getMQValue(counterid)
@@ -114,14 +113,13 @@ class FlowMeterManager(Plugin):
                                                                                 "device_id": device_id, 
                                                                                 "flowsensor_id": flowsensor_id,
                                                                                 "formula": formula,
-                                                                                "unit": unit,            # Utile pour generer graphes dans 'Advanced' ?
                                                                                 "periodic": periodic,
                                                                                 "last_counter_value": last_countervalue,
                                                                                 "last_counter_ts": 0}})       
                 self.log.info(u"==> Device Flowmeter Sensor for counter '%d' : '%s'" % (counterid, format(self.flowmetermanager.flowMeterSensorsList[counterid])))
                 #self.log.info(u"==> Device Flowmeter Sensor list : %s" % self.flowmetermanager.flowMeterSensorsList)
-                # {85: {'name': u'Vitesse du vent', 'counter': 210, 'dmgid': 85, 'formula': u'VALUE * 10', 'unit': u'km/h', 'lastcountervalue': u'10239534'}, 
-                #  86: {'name': u'Consommation eau', 'counter': 208, 'dmgid': 86, 'formula': u'VALUE * 4', 'unit': u'l', 'lastcountervalue': u'148920'}}
+                # {85: {'name': u'Vitesse du vent', 'counter': 210, 'dmgid': 85, 'formula': u'VALUE * 10', 'lastcountervalue': u'10239534'}, 
+                #  86: {'name': u'Consommation eau', 'counter': 208, 'dmgid': 86, 'formula': u'VALUE * 4', 'lastcountervalue': u'148920'}}
                 
                 if not self.flowmetermanager.flowMeterSensorsList[counterid]["periodic"]:
                     self.log.info(u"==> Device Flowmeter Sensor for counter '%s' does not have a periodic update, Not supported for now !" % self.flowmetermanager.flowMeterSensorsList[counterid]["name"])
