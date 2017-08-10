@@ -38,6 +38,11 @@ This list will only show the sensor type:
 .. image:: AdminAdvanced_CreateDevice.png
 
 
+.. warning::    
+    After adding a device, it will be necessary to restart the plugin.
+    For some unknown reason, the "update.device" self.register_cb_update_devices() callback does not work with self.add_mq_sub() function.
+
+
 Device parameters configuration
 -------------------------------
 
