@@ -42,6 +42,23 @@ def get_flows(devices):
         else:
             dtunit = ""
 
+        if a_device["sensors"]["hourflow"]["last_value"]:
+            hourflow = "%0.1f" % float(a_device["sensors"]["hourflow"]["last_value"])
+        else:
+            hourflow = 0
+        if a_device["sensors"]["dayflow"]["last_value"]:
+            dayflow = "%0.1f" % float(a_device["sensors"]["dayflow"]["last_value"])
+        else:
+            dayflow = 0
+        if a_device["sensors"]["monthflow"]["last_value"]:
+            monthflow = "%0.1f" % float(a_device["sensors"]["monthflow"]["last_value"])
+        else:
+            monthflow = 0
+        if a_device["sensors"]["yearflow"]["last_value"]:
+            yearflow = "%0.1f" % float(a_device["sensors"]["yearflow"]["last_value"])
+        else:
+            yearflow = 0
+            
         flowslist.append(
             {"name": a_device["name"], 
              "deviceid" : a_device["id"],
@@ -49,10 +66,10 @@ def get_flows(devices):
              "dtype": a_device["sensors"]["flow"]["data_type"],
              "date": last_received,
              "flow": a_device["sensors"]["flow"]["last_value"],             
-             "hourflow": "%0.1f" % float(a_device["sensors"]["hourflow"]["last_value"]),
-             "dayflow": "%0.1f" % float(a_device["sensors"]["dayflow"]["last_value"]),
-             "monthflow": "%0.1f" % float(a_device["sensors"]["monthflow"]["last_value"]),
-             "yearflow": "%0.1f" % float(a_device["sensors"]["yearflow"]["last_value"]),
+             "hourflow": hourflow,
+             "dayflow": dayflow,
+             "monthflow": monthflow,
+             "yearflow": yearflow,
              "unit": dtunit
              })
     return flowslist
