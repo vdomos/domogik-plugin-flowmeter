@@ -87,9 +87,9 @@ class FlowMeter():
         
         self.log.info(u"==> counterdiff = %d, flowValue = %f for flowmeter '%s'" % (counterdiff, flowValue, self.flowMeterSensorsList[counterSensorId]["name"]))
 
-        # If current value and lastcountertimestamp < 30mn don't save (necessary to have one value in hour to calculate sum by interval )
-        if flowValue == 0 and (time.time() - self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] < 1800):
-            #self.log.debug(u"==> Current flowmeter value of '%s' = 0 and last timestamp < 30mn, Don't save !" % self.flowMeterSensorsList[counterSensorId]["name"])
+        # If current value and lastcountertimestamp < 20mn don't save (necessary to have at least one value in hour to calculate sum by interval )
+        if flowValue == 0 and (time.time() - self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] < 1200):
+            #self.log.debug(u"==> Current flowmeter value of '%s' = 0 and last timestamp < 20mn, Don't save !" % self.flowMeterSensorsList[counterSensorId]["name"])
             return        
         self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] = content["timestamp"]
         
