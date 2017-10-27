@@ -33,7 +33,9 @@
                     "key": "formula",
                     "xpl": false,
                     "description": "Formula applied to the difference, Example: VALUE * 0.2794",
-                    "type": "string"
+                    "type": "string",
+                    "default": ""
+
                 },
                 {
                     "key": "periodic", 

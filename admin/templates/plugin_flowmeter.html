@@ -39,10 +39,10 @@ function strip(str) {
                         <tr>
                             <td>{{ flow.name }}</td>
                             <td>{{ flow.date }}</td>
-                            <td>{{ flow.hourflow }}{{ flow.hourunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.hourunit }}/hour/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>{{ flow.dayflow }}{{ flow.dayunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dayunit }}/day/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>{{ flow.monthflow }}{{ flow.monthunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.monthunit }}/month/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>{{ flow.yearflow }}{{ flow.yearunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.yearunit }}/year/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td><a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.hourunit }}/hour/graph"><span class="glyphicon glyphicon-signal"></span></a> {{ flow.hourflow }}{{ flow.hourunit }} </td>
+                            <td><a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dayunit }}/day/graph"><span class="glyphicon glyphicon-signal"></span></a> {{ flow.dayflow }}{{ flow.dayunit }} </td>
+                            <td><a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.monthunit }}/month/graph"><span class="glyphicon glyphicon-signal"></span></a> {{ flow.monthflow }}{{ flow.monthunit }} </td>
+                            <td><a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.yearunit }}/year/graph"><span class="glyphicon glyphicon-signal"></span></a> {{ flow.yearflow }}{{ flow.yearunit }} </td>
                         </tr>
                         {% endfor %}
                     </tbody>
