@@ -28,12 +28,10 @@ function strip(str) {
                         <tr>
                             <th>{% trans %}Name{% endtrans %}</th>
                             <th>{% trans %}Date{% endtrans %}</th>
-                            <!-- <th>{% trans %}Last value{% endtrans %}</th> -->
                             <th>{% trans %}Last hour{% endtrans %}</th>
                             <th>{% trans %}Last day{% endtrans %}</th>
                             <th>{% trans %}Last month{% endtrans %}</th>
                             <th>{% trans %}Last year{% endtrans %}</th>
-                            <th>{% trans %}Histograms{% endtrans %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,15 +39,10 @@ function strip(str) {
                         <tr>
                             <td>{{ flow.name }}</td>
                             <td>{{ flow.date }}</td>
-                            <td>{{ flow.hourflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/hour/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>{{ flow.dayflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/day/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>{{ flow.monthflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/month/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>{{ flow.yearflow }}{{ flow.unit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/year/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
-                            <td>
-                                <div class="btn-group">
-                                    <a class="btn btn-primary btn-xs" href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dtype }}/all/graph">View all</a>
-                                </div>
-                            </td>
+                            <td>{{ flow.hourflow }}{{ flow.hourunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.hourunit }}/hour/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td>{{ flow.dayflow }}{{ flow.dayunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.dayunit }}/day/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td>{{ flow.monthflow }}{{ flow.monthunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.monthunit }}/month/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
+                            <td>{{ flow.yearflow }}{{ flow.yearunit }} <a href="./{{ clientid }}/{{ flow.sensorid }}/{{ flow.name }}/{{ flow.yearunit }}/year/graph"><span class="glyphicon glyphicon-signal"></span></a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

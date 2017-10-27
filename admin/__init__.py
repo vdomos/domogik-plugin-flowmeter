@@ -34,26 +34,27 @@ def get_flows(devices):
         if a_device["sensors"]["flow"]["last_received"]:     # Can be 'None'
             last_received = datetime.fromtimestamp(a_device["sensors"]["flow"]["last_received"]).strftime("%e %b %k:%M")
         else:
-            last_received = ""
+            last_received = "-"
             
-        datatype = a_device["sensors"]["flow"]["data_type"]
-        if datatypeslist[datatype]["unit"]:
-            dtunit = datatypeslist[datatype]["unit"]
-        else:
-            dtunit = ""
-
+        hourunit = datatypeslist[a_device["sensors"]["hourflow"]["data_type"]]["unit"]
         if a_device["sensors"]["hourflow"]["last_value"]:
             hourflow = "%0.1f" % float(a_device["sensors"]["hourflow"]["last_value"])
         else:
             hourflow = 0
+
+        dayunit = datatypeslist[a_device["sensors"]["dayflow"]["data_type"]]["unit"]
         if a_device["sensors"]["dayflow"]["last_value"]:
             dayflow = "%0.1f" % float(a_device["sensors"]["dayflow"]["last_value"])
         else:
             dayflow = 0
+            
+        monthunit = datatypeslist[a_device["sensors"]["monthflow"]["data_type"]]["unit"]
         if a_device["sensors"]["monthflow"]["last_value"]:
             monthflow = "%0.1f" % float(a_device["sensors"]["monthflow"]["last_value"])
         else:
             monthflow = 0
+            
+        yearunit = datatypeslist[a_device["sensors"]["yearflow"]["data_type"]]["unit"]
         if a_device["sensors"]["yearflow"]["last_value"]:
             yearflow = "%0.1f" % float(a_device["sensors"]["yearflow"]["last_value"])
         else:
@@ -63,14 +64,16 @@ def get_flows(devices):
             {"name": a_device["name"], 
              "deviceid" : a_device["id"],
              "sensorid": a_device["sensors"]["flow"]["id"],
-             "dtype": a_device["sensors"]["flow"]["data_type"],
              "date": last_received,
              "flow": a_device["sensors"]["flow"]["last_value"],             
              "hourflow": hourflow,
              "dayflow": dayflow,
              "monthflow": monthflow,
              "yearflow": yearflow,
-             "unit": dtunit
+             "hourunit": hourunit.replace('/', '-') if hourunit else "-",
+             "dayunit": dayunit.replace('/', '-') if dayunit else "-",
+             "monthunit": monthunit.replace('/', '-') if monthunit else "-",
+             "yearunit": yearunit.replace('/', '-') if yearunit else "-"
              })
     return flowslist
 
@@ -190,20 +193,20 @@ def index(client_id):
 
 
 # -------------------------------------------------------------------------------------------------
-# Route /<sensor_id>/<device_name>/graph
+# Route /<sensor_id>/<device_name>/<unit>/<interval>/graph
 # -------------------------------------------------------------------------------------------------
-@plugin_flowmeter_adm.route('/<client_id>/<sensor_id>/<device_name>/<data_type>/<interval>/graph')
-def graph(client_id, sensor_id, device_name, data_type, interval):
+@plugin_flowmeter_adm.route('/<client_id>/<sensor_id>/<device_name>/<unit>/<interval>/graph')
+def graph(client_id, sensor_id, device_name, unit, interval):
     detail = get_client_detail(client_id)
 
-    dttype_color = {'DT_Number': '#BDBDBD', 'DT_Counter': '#BDBDBD', 'DT_ActiveEnergy': '#FE9A2E', 'DT_kActiveEnergy': '#FE9A2E', 'DT_mMeter': '#2E64FE', 'DT_kMeter': '#BDBDBD', 'DT_VolumeLiter': '#81BEF7', 'DT_VolumeM3': '#81BEF7'}
+    unit_color = {'-': '#BDBDBD', 'Wh': '#FE9A2E', 'kWh': '#FE9A2E', 'mm': '#2E64FE', 'km': '#BDBDBD', 'L': '#81BEF7', 'm3': '#81BEF7'}
     data = {}
     data["hour"] = []
     data["day"] = []
     data["month"] = []
     data["year"] = []
     
-    if interval == "hour" or interval == "all":
+    if interval == "hour":
         tsfrom = int((datetime.now() + timedelta(hours=-30)).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# now - 30h
         values = getMQFilterSensorHistory(sensor_id, tsfrom, "hour", "sum")
         if values:
@@ -215,7 +218,7 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
         else:
             data["hour"] = [[0, 0]] 
 
-    if interval == "day" or interval == "all":
+    if interval == "day":
         tsfrom = int((datetime.now() + timedelta(days=-32)).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# now - 32j
         values = getMQFilterSensorHistory(sensor_id, tsfrom, "day", "sum")
         if values:
@@ -227,7 +230,7 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
         else:
             data["day"] = [[0, 0]] 
 
-    if interval == "month" or interval == "all":
+    if interval == "month":
         tsfrom = int((datetime.now() + timedelta(days=-428)).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# now - 428j
         values = getMQFilterSensorHistory(sensor_id, tsfrom, "month", "sum")
         if values:
@@ -239,7 +242,7 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
         else:
             data["month"] = [[0, 0]] 
 
-    if interval == "year" or interval == "all":
+    if interval == "year":
         tsfrom = 1451602800	                        # 2016-01-01
         values = getMQFilterSensorHistory(sensor_id, tsfrom, "year", "sum")
         if values:
@@ -251,10 +254,10 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
         else:
             data["year"] = [[0, 0]] 
 
-    if datatypeslist[data_type]["unit"]:
-        dtunit = datatypeslist[data_type]["unit"]
-    else:
-        dtunit = "-"
+    try:
+        graphcolor = unit_color[unit]
+    except KeyError:
+        graphcolor = "#BDBDBD"
         
     try:
         return render_template('plugin_flowmeter_graph.html',
@@ -263,8 +266,8 @@ def graph(client_id, sensor_id, device_name, data_type, interval):
             mactive = "clients",
             active = 'advanced',
             devicename = device_name,
-            unit = data_type.replace("DT_", "") + " (" + dtunit + ")",
-            color = dttype_color[data_type],
+            unit = unit,
+            color = graphcolor,
             datahour = data["hour"],
             dataday = data["day"],
             datamonth = data["month"],
