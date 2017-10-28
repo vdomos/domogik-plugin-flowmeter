@@ -34,12 +34,12 @@
                     "xpl": false,
                     "description": "Formula applied to the difference, Example: VALUE * 0.2794",
                     "type": "string",
-                    "default": ""
+                    "default": "None"
 
                 },
                 {
                     "key": "periodic", 
-                    "description": "set to false if counter does not have a periodic update", 
+                    "description": "set to 'no' if counter does not have a periodic update", 
                     "xpl": false,
                     "default": true,
                     "type": "boolean"

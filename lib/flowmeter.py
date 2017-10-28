@@ -75,7 +75,7 @@ class FlowMeter():
         
         # handle formula if defined
         counterFormula = self.flowMeterSensorsList[counterSensorId]["formula"]
-        if counterFormula:
+        if counterFormula != "None":
             formula = counterFormula.replace('VALUE', str(float(counterdiff)))
             try:
                 flowValue = eval(formula)
@@ -87,10 +87,8 @@ class FlowMeter():
         
         self.log.info(u"==> counterdiff = %d, flowValue = %f for flowmeter '%s'" % (counterdiff, flowValue, self.flowMeterSensorsList[counterSensorId]["name"]))
 
-        # If current value and lastcountertimestamp < 20mn don't save (necessary to have at least one value in hour to calculate sum by interval )
-        # but force update if minute < 5 for updating sensors on hour beginning
-        if flowValue == 0 and (time.time() - self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] < 1200) and datetime.now().minute > 4:
-            #self.log.debug(u"==> Current flowmeter value of '%s' = 0 and last timestamp < 20mn, Don't save !" % self.flowMeterSensorsList[counterSensorId]["name"])
+        # If current value = 0 and lastcountertimestamp < 5mn don't save (necessary to have at least one value in hour to calculate sum by interval )
+        if flowValue == 0 and (time.time() - self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] < 300):
             return        
         self.flowMeterSensorsList[counterSensorId]["last_counter_ts"] = content["timestamp"]
         
@@ -99,10 +97,9 @@ class FlowMeter():
         
     
     # -------------------------------------------------------------------------------------------------
-    def doScheduleSum(self):
-        self.log.info("==> Get last flowmeter sums values")
+    def doScheduleSum(self, interval):
+        self.log.info("==> Get last flowmeter sums values for '%s' interval" % interval)
         for counterSensorId in self.flowMeterSensorsList:
-            for interval in ["hour", "day", "month", "year"]:
                 if interval == "hour":
                     tsfrom = int((datetime.now()).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# Current hour
                 elif interval == "day":

@@ -69,7 +69,10 @@ class FlowMeterManager(Plugin):
         # Set nodes list
         self.setFlowMeterSensorsList(self.devices)
 
-        schedule.every(5).minutes.do(self.flowmetermanager.doScheduleSum)        
+        schedule.every(5).minutes.do(self.flowmetermanager.doScheduleSum, "hour")
+        schedule.every(11).minutes.do(self.flowmetermanager.doScheduleSum, "day")
+        schedule.every(23).minutes.do(self.flowmetermanager.doScheduleSum, "month")
+        schedule.every(31).minutes.do(self.flowmetermanager.doScheduleSum, "year")
         
         # A thread is launched to run schedule loop.
         self.log.info(u"==> Launch 'schedule loop' thread") 
@@ -165,10 +168,9 @@ class FlowMeterManager(Plugin):
         msg.add_data('interval', interval)      # 'minute|hour|day|week|month|year'
         msg.add_data('selector', selector)      # 'min|max|avg|sum'
         try:
-            #sensor_history = cli.request('admin', msg.get(), timeout=15).get()
             sensor_history = mq_client.request('admin', msg.get(), timeout=15).get()
         except AttributeError:
-            self.log.error("### AttributeError for get FilterSensorHistory")
+            self.log.error("### AttributeError to get FilterSensorHistory '%s' for sensor '%d'" % (interval, id))
             return []
         if 'sensor_history.result' in sensor_history:
             historyvalues = json.loads(sensor_history[1])
