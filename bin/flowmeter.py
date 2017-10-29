@@ -42,6 +42,7 @@ import threading
 import traceback
 import json
 import time
+import requests
 
 class FlowMeterManager(Plugin):
     """ 
@@ -64,15 +65,14 @@ class FlowMeterManager(Plugin):
         self.sensors = self.get_sensors(self.devices)
 
         # Init FlowMeter Manager
-        self.flowmetermanager = FlowMeter(self.log, self.send_data, self.getMQFilterSensorHistory, self.get_stop())
+        ###self.flowmetermanager = FlowMeter(self.log, self.send_data, self.getMQFilterSensorHistory, self.get_stop())
+        self.flowmetermanager = FlowMeter(self.log, self.send_data, self.getRESTFilterSensorHistory, self.get_stop())
         
         # Set nodes list
         self.setFlowMeterSensorsList(self.devices)
 
-        schedule.every(5).minutes.do(self.flowmetermanager.doScheduleSum, "hour")
-        schedule.every(11).minutes.do(self.flowmetermanager.doScheduleSum, "day")
-        schedule.every(23).minutes.do(self.flowmetermanager.doScheduleSum, "month")
-        schedule.every(31).minutes.do(self.flowmetermanager.doScheduleSum, "year")
+        ###schedule.every(5).minutes.do(self.flowmetermanager.doScheduleSum, "hour")
+        schedule.every(5).minutes.do(self.flowmetermanager.doScheduleSum)
         
         # A thread is launched to run schedule loop.
         self.log.info(u"==> Launch 'schedule loop' thread") 
@@ -155,6 +155,7 @@ class FlowMeterManager(Plugin):
         
 
     # -------------------------------------------------------------------------------------------------
+    ### Not used anymore for now, too many "AttributeError" with 'month' or 'year' interval
     def getMQFilterSensorHistory(self, id, ts, interval, selector):
         # get the filtered and calculated history starting from/to a certain timestamp
         #cli = MQSyncReq(zmq.Context())
@@ -183,6 +184,25 @@ class FlowMeterManager(Plugin):
             self.log.error("### No Result for FilterSensorHistory: '%s'" % format(sensor_history))
             return []
  
+    # -------------------------------------------------------------------------------------------------
+    def getRESTFilterSensorHistory(self, id, ts, interval, selector):
+        try:
+            # http://vesta:40406/rest/sensorhistory/id/465/from/1501020000/interval/day/selector/sum    
+            url = "http://" + "hades" + ":40406/rest/sensorhistory/id/" + str(id)  + "/from/" + str(ts) + "/interval/" + interval + "/selector/" + selector
+            req = requests.get(url)
+        except requests.exceptions.RequestException as err:
+            self.log.error("Erreur RequestException: '%s'" % err)
+            return []
+        if req.status_code != 200:
+            self.log.error("Erreur RequestHttp: '%s'" % req.status_code)
+            return []
+        historyvalues = json.loads(req.text)
+        if historyvalues["values"]:
+            return historyvalues["values"]
+        else:
+            self.log.info("==> No FilterSensorHistory values for sensor '%d' in '%s' interval" % (id, interval))
+            return []
+        
     # -------------------------------------------------------------------------------------------------
     def on_message(self, msgid, content):               
         ''' Must recieve only 'device-stats' messages

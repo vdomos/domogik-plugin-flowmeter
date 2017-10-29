@@ -71,7 +71,7 @@
             "timeout": 1800,
             "history": {
                 "store": false,
-                "duplicate": false,
+                "duplicate": true,
                 "max": 0,
                 "expire": 0,
                 "round_value": 0
@@ -85,7 +85,7 @@
             "timeout": 1800,
             "history": {
                 "store": false,
-                "duplicate": false,
+                "duplicate": true,
                 "max": 0,
                 "expire": 0,
                 "round_value": 0
@@ -98,7 +98,7 @@
             "incremental": false,
             "timeout": 1800,
             "history": {
-                "store": true,
+                "store": false,
                 "duplicate": true,
                 "max": 0,
                 "expire": 0,
@@ -113,7 +113,7 @@
             "timeout": 1800,
             "history": {
                 "store": false,
-                "duplicate": false,
+                "duplicate": true,
                 "max": 0,
                 "expire": 0,
                 "round_value": 0

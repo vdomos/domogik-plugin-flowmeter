@@ -97,9 +97,11 @@ class FlowMeter():
         
     
     # -------------------------------------------------------------------------------------------------
-    def doScheduleSum(self, interval):
-        self.log.info("==> Get last flowmeter sums values for '%s' interval" % interval)
+    ###def doScheduleSum(self, interval):
+    def doScheduleSum(self):
         for counterSensorId in self.flowMeterSensorsList:
+            for interval in ["hour", "day", "month", "year"]:
+                self.log.info("==> Get last flowmeter sums values for device '%s' in '%s' interval" % (self.flowMeterSensorsList[counterSensorId]["name"], interval))
                 if interval == "hour":
                     tsfrom = int((datetime.now()).replace(minute=0, second=0, microsecond=0).strftime("%s"))	# Current hour
                 elif interval == "day":
@@ -109,7 +111,7 @@ class FlowMeter():
                 elif interval == "year":
                     tsfrom = int((datetime.now()).replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0).strftime("%s"))	# Current year
                 values = self.getSensorHistory(self.flowMeterSensorsList[counterSensorId]["flowsensor_id"], tsfrom, interval, "sum")
-                self.log.info("==> getSensorHistoryvalues = %s" % format(values))
+                self.log.info("==> getSensorHistoryvalues for device '%s' in '%s' interval = %s" % (self.flowMeterSensorsList[counterSensorId]["name"], interval, format(values)))
                 if values:
                     sumValue = values[0][-1]    # For last hour, values = [[2017, 7, 30, 29, 15, 0.75]]
                     self.log.info("==> Last flowmeter '%s' sum value for '%s' = %0.3f" % (interval, self.flowMeterSensorsList[counterSensorId]["name"], sumValue))
