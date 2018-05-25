@@ -188,7 +188,7 @@ class FlowMeterManager(Plugin):
     def getRESTFilterSensorHistory(self, id, ts, interval, selector):
         try:
             # http://vesta:40406/rest/sensorhistory/id/465/from/1501020000/interval/day/selector/sum    
-            url = "http://" + "hades" + ":40406/rest/sensorhistory/id/" + str(id)  + "/from/" + str(ts) + "/interval/" + interval + "/selector/" + selector
+            url = "http://localhost:40406/rest/sensorhistory/id/" + str(id)  + "/from/" + str(ts) + "/interval/" + interval + "/selector/" + selector
             req = requests.get(url)
         except requests.exceptions.RequestException as err:
             self.log.error("Erreur RequestException: '%s'" % err)
