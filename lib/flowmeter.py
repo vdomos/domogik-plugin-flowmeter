@@ -65,13 +65,14 @@ class FlowMeter():
         ''' content = {u'timestamp': 1482685199, u'sensor_id': u'199', u'device_id': 87, u'stored_value': u'7.2'}
         '''
         counterSensorId = int(content["sensor_id"])
-        counterdiff = int(content["stored_value"]) - int(self.flowMeterSensorsList[counterSensorId]["last_counter_value"])
-        self.flowMeterSensorsList[counterSensorId]["last_counter_value"] = content["stored_value"]       # Update last_counter_value
+        counterValue = int(content["stored_value"])
+        counterdiff = counterValue - int(self.flowMeterSensorsList[counterSensorId]["last_counter_value"])
+        self.flowMeterSensorsList[counterSensorId]["last_counter_value"] = counterValue       # Update last_counter_value
         
         # In case the counter has been reset, what can we do ?
         if counterdiff < 0:
-            self.log.warning(u"==> Current counter value of '%s' is less than the last received, Don't save !" % self.flowMeterSensorsList[counterSensorId]["name"])
-            return                                  # For now, only ignore the received counter'value, only be save in last_counter_value.
+            self.log.debug(u"==> Current counter value of '%s' is less than the last received, 'counterdiff' will set to 1 or to counter value !" % self.flowMeterSensorsList[counterSensorId]["name"])
+            counterdiff = 1 if not counterValue else counterValue     # diff = 1 if counter = 0 else diff = counter
         
         # handle formula if defined
         counterFormula = self.flowMeterSensorsList[counterSensorId]["formula"]
@@ -85,6 +86,7 @@ class FlowMeter():
         else:
             flowValue = counterdiff
         
+        self.log.debug(u"==> counters: current = %s, last = %s for flowmeter '%s'" % (content["stored_value"], self.flowMeterSensorsList[counterSensorId]["last_counter_value"], self.flowMeterSensorsList[counterSensorId]["name"]))
         self.log.info(u"==> counterdiff = %d, flowValue = %f for flowmeter '%s'" % (counterdiff, flowValue, self.flowMeterSensorsList[counterSensorId]["name"]))
 
         # If current value = 0 and lastcountertimestamp < 5mn don't save (necessary to have at least one value in hour to calculate sum by interval )
